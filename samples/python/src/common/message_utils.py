@@ -21,7 +21,7 @@ from pydantic import BaseModel
 
 def find_data_part(
     data_key: str, data_parts: list[dict[str, Any]]
-) -> Any | None:
+) -> object | None:
     """Returns the value for the first occurrence of the key in the data parts.
 
     Args:
@@ -58,22 +58,32 @@ def find_data_parts(
     return data_parts_with_key
 
 
-def parse_canonical_object(
+def parse_canonical_object[T: BaseModel](
     data_key: str,
     data_parts: list[dict[str, Any]],
-    canonical_object_model: BaseModel,
-) -> Any:
+    canonical_object_model: type[T],
+) -> T:
     """Converts the data part value for the given key to a canonical object.
 
     Args:
       data_key: The key to search for.
       data_parts: The data parts to be searched.
-      canonical_object_model: The pydantic model of the canonical object.
+      canonical_object_model: The pydantic model class of the canonical object.
 
     Returns:
       The canonical object created from the data part value.
     """
     canonical_object_data = find_data_part(data_key, data_parts)
     if canonical_object_data is None:
-        raise ValueError(f'{type(canonical_object_model)} not found.')
+        model_name = (
+            canonical_object_model.__name__
+            if hasattr(canonical_object_model, '__name__')
+            else str(canonical_object_model)
+        )
+        available_keys = [key for data_part in data_parts for key in data_part]
+        raise ValueError(
+            f'{model_name} not found in data_parts. '
+            f'Looking for key: {data_key}. '
+            f'Available keys: {available_keys}'
+        )
     return canonical_object_model.model_validate(canonical_object_data)
