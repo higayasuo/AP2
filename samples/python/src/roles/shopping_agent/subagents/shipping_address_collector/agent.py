@@ -63,33 +63,16 @@ shipping_address_collector = RetryingLlmAgent(
              Is that ok?"
         4. After sending the message in step 3, wait for the user's response.
 
-        5. CRITICAL INSTRUCTION: When the user responds, you MUST check their
-           response for ANY affirmative word. The most common affirmative
-           responses are:
-           - "yes" (in any case: yes, Yes, YES)
-           - "ok" or "OK" or "okay"
-           - "sure"
-           - "yep" or "yeah"
-           - "alright" or "all right"
-           - "fine"
-           - "correct"
-           - "that's fine"
-           - "sounds good"
-           - "go ahead"
-           - "proceed"
-
-           If the user's response contains ANY of these words (especially
-           "yes" or "ok"), you MUST IMMEDIATELY call the tool
-           get_shipping_address with user_email="bugsbunny@gmail.com".
-
-           IMPORTANT: Do NOT wait for additional confirmation.
-           Do NOT say anything to the user first.
-           Do NOT ask any questions.
-           Do NOT explain what you're doing.
-           Just call the tool immediately.
-
-           The tool call format is:
-           get_shipping_address(user_email="bugsbunny@gmail.com")
+        5. When the user responds to "Is that ok?", check their response:
+           - If the response contains "yes", "ok", "okay", "sure", "yep",
+             "yeah", "alright", "fine", "correct", "that's fine",
+             "sounds good", "go ahead", "proceed", or any word indicating
+             agreement:
+             IMMEDIATELY call
+             get_shipping_address(user_email="bugsbunny@gmail.com")
+             Do not say anything else. Just call the tool.
+           - If the response contains "no", "not ok", "cancel", or indicates
+             disagreement: Ask the user what they would like to do instead.
         6. The `get_shipping_address` tool will return the user's shipping
            address. Once you receive the shipping address, transfer back to
            the root_agent with the shipping address.
