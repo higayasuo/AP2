@@ -24,14 +24,15 @@ multiple CartMandate objects, assuming the user will select one of the options.
 This is just one of many possible approaches.
 """
 
-from . import tools
 from common.retrying_llm_agent import RetryingLlmAgent
 from common.system_utils import DEBUG_MODE_INSTRUCTIONS
 
+from . import tools
+
 
 shopper = RetryingLlmAgent(
-    model="gemini-2.5-flash",
-    name="shopper",
+    model='gemini-2.5-flash',
+    name='shopper',
     max_retries=5,
     instruction="""
     You are an agent responsible for helping the user shop for products.
@@ -52,11 +53,13 @@ shopper = RetryingLlmAgent(
         - Any preferred merchants or specific SKUs.
         - Whether the item needs to be refundable.
     3. After you have gathered what you believe is sufficient information,
-      use the 'create_intent_mandate' tool with the collected information
+      you MUST use the 'create_intent_mandate' tool with the collected information
       (user's description, and any other details they provided). Do not include
       any user guidance on price in the intent mandate. Use user's preference for
       the price as a filter when recommending products for the user to select
       from.
+      CRITICAL: You MUST call 'create_intent_mandate' before calling 'find_products'.
+      Never call 'find_products' without first calling 'create_intent_mandate'.
     4. Present the IntentMandate to the user in a clear, well-formatted summary.
       Start with the statement: "Please confirm the following details for your
       purchase. Note that this information will be shared with the merchant."
@@ -74,8 +77,11 @@ shopper = RetryingLlmAgent(
         human-readable relative time (e.g., "in 1 hour", "in 2 days").
 
       After the breakdown, leave a blank line and end with: "Shall I proceed?"
-    5. Once the user confirms, use the 'find_products' tool. It will
+    5. Once the user confirms, you may use the 'find_products' tool. It will
       return a list of `CartMandate` objects.
+      CRITICAL: You can ONLY call 'find_products' AFTER you have successfully
+      called 'create_intent_mandate'. If 'find_products' fails with an error
+      about missing IntentMandate, you must first call 'create_intent_mandate'.
     6. For each CartMandate object in the list, create a visually distinct entry
       that includes the following details from the object:
           Item: Display the item_name clearly and in bold.
@@ -98,7 +104,8 @@ shopper = RetryingLlmAgent(
     9. Monitor the tool's output. If the cart ID is not found, you must inform
       the user and prompt them to try again. If the selection is successful,
       signal a successful update and hand off the process to the root_agent.
-    """ % DEBUG_MODE_INSTRUCTIONS,
+    """
+    % DEBUG_MODE_INSTRUCTIONS,
     tools=[
         tools.create_intent_mandate,
         tools.find_products,

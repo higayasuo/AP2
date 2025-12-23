@@ -18,10 +18,14 @@ This implementation enhances the ADK's LlmAgent by automatically retrying
 requests and surfacing errors captured from the LLM.
 """
 
+import logging
+
 from google.adk.agents.invocation_context import InvocationContext
 from google.adk.agents.llm_agent import LlmAgent
 from google.adk.events.event import Event
 from typing_extensions import AsyncGenerator, override
+
+_logger = logging.getLogger(__name__)
 
 
 class RetryingLlmAgent(LlmAgent):
@@ -35,6 +39,10 @@ class RetryingLlmAgent(LlmAgent):
       self, ctx: InvocationContext, retries_left: int = 0
   ) -> AsyncGenerator[Event, None]:
     if retries_left <= 0:
+      _logger.error(
+          'Maximum retries exhausted for agent %s',
+          ctx.agent.name,
+      )
       yield Event(
           author=ctx.agent.name,
           invocation_id=ctx.invocation_id,
@@ -48,6 +56,13 @@ class RetryingLlmAgent(LlmAgent):
         async for event in super()._run_async_impl(ctx):
           yield event
       except Exception as e:  # pylint: disable=broad-exception-caught
+        _logger.error(
+            'Gemini server error in agent %s (retries_left=%d): %s',
+            ctx.agent.name,
+            retries_left,
+            str(e),
+            exc_info=True,
+        )
         yield Event(
             author=ctx.agent.name,
             invocation_id=ctx.invocation_id,

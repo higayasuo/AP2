@@ -18,6 +18,8 @@ Each agent uses individual tools to handle distinct tasks throughout the
 shopping and purchasing process.
 """
 
+import logging
+
 from datetime import UTC, datetime, timedelta
 
 from a2a.types import Artifact
@@ -25,6 +27,9 @@ from common.a2a_message_builder import A2aMessageBuilder
 from common.artifact_utils import find_canonical_objects
 from google.adk.tools.tool_context import ToolContext
 from roles.shopping_agent.remote_agents import merchant_agent_client
+
+
+_logger = logging.getLogger(__name__)
 
 from ap2.types.mandate import (
     CART_MANDATE_DATA_KEY,
@@ -65,6 +70,12 @@ def create_intent_mandate(
     )
     # Store as dict for JSON serialization in ADK session state
     tool_context.state['intent_mandate'] = intent_mandate.model_dump()
+    _logger.info(
+        'create_intent_mandate: Stored intent_mandate in state. State keys: %s',
+        list(tool_context.state.keys())
+        if hasattr(tool_context.state, 'keys')
+        else 'N/A',
+    )
     return intent_mandate
 
 
@@ -83,9 +94,28 @@ async def find_products(
     Raises:
       RuntimeError: If the merchant agent fails to provide products.
     """
+    _logger.info(
+        'find_products: Checking for intent_mandate in state. State keys: %s',
+        list(tool_context.state.keys())
+        if hasattr(tool_context.state, 'keys')
+        else 'N/A',
+    )
     intent_mandate_dict = tool_context.state.get('intent_mandate')
     if not intent_mandate_dict:
-        raise RuntimeError('No IntentMandate found in tool context state.')
+        available_keys = (
+            list(tool_context.state.keys())
+            if hasattr(tool_context.state, 'keys')
+            else []
+        )
+        _logger.error(
+            'find_products: No IntentMandate found. Available keys: %s',
+            available_keys,
+        )
+        raise RuntimeError(
+            f'No IntentMandate found in tool context state. '
+            f'Available keys: {available_keys}. '
+            f'Please call create_intent_mandate first.'
+        )
     # Convert dict back to IntentMandate object
     intent_mandate = (
         IntentMandate(**intent_mandate_dict)

@@ -134,5 +134,5 @@ pids+=($!)
 echo ""
 echo "All remote servers are starting."
 
-echo "Starting the Shopping Agent..."
-$UV_RUN_CMD --package ap2-samples adk web --host 0.0.0.0 $AGENTS_DIR
+echo "Starting the Shopping Agent (port:8000 log:$LOG_DIR/shopping_agent.log)..."
+$UV_RUN_CMD --package ap2-samples adk web --host 0.0.0.0 $AGENTS_DIR 2>&1 | tee "$LOG_DIR/shopping_agent.log"

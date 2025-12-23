@@ -22,6 +22,7 @@ import os
 import uuid
 
 from datetime import datetime, timezone
+from typing import Any
 
 from a2a.types import Artifact
 from common import artifact_utils
@@ -43,20 +44,23 @@ from .remote_agents import credentials_provider_client, merchant_agent_client
 
 
 async def update_cart(
-    shipping_address: ContactAddress,
+    shipping_address: dict[str, Any],
     tool_context: ToolContext,
     debug_mode: bool = False,
 ) -> str:
     """Notifies the merchant agent of a shipping address selection for a cart.
 
     Args:
-      shipping_address: The user's selected shipping address.
+      shipping_address: The user's selected shipping address as a dictionary.
       tool_context: The ADK supplied tool context.
       debug_mode: Whether the agent is in debug mode.
 
     Returns:
       The updated CartMandate.
     """
+    # Convert dict to ContactAddress object
+    contact_address = ContactAddress(**shipping_address)
+
     chosen_cart_id = tool_context.state['chosen_cart_id']
     if not chosen_cart_id:
         raise RuntimeError(
@@ -68,12 +72,7 @@ async def update_cart(
         .set_context_id(tool_context.state['shopping_context_id'])
         .add_text("Update the cart with the user's shipping address.")
         .add_data('cart_id', chosen_cart_id)
-        .add_data(
-            'shipping_address',
-            shipping_address.model_dump()
-            if hasattr(shipping_address, 'model_dump')
-            else shipping_address,
-        )
+        .add_data('shipping_address', contact_address.model_dump())
         .add_data('shopping_agent_id', 'trusted_shopping_agent')
         .add_data('debug_mode', debug_mode)
         .build()
@@ -86,11 +85,7 @@ async def update_cart(
 
     # Store as dict for JSON serialization in ADK session state
     tool_context.state['cart_mandate'] = updated_cart_mandate.model_dump()
-    tool_context.state['shipping_address'] = (
-        shipping_address.model_dump()
-        if hasattr(shipping_address, 'model_dump')
-        else shipping_address
-    )
+    tool_context.state['shipping_address'] = contact_address.model_dump()
 
     return updated_cart_mandate
 
