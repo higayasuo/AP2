@@ -27,7 +27,8 @@ import abc
 import logging
 import uuid
 
-from typing import Any, Callable, Tuple
+from collections.abc import Callable
+from typing import Any
 
 from a2a.server.agent_execution.agent_executor import AgentExecutor
 from a2a.server.agent_execution.context import RequestContext
@@ -128,7 +129,6 @@ class BaseServerExecutor(AgentExecutor, abc.ABC):
 
     async def cancel(self, context: RequestContext) -> None:
         """Request the agent to cancel an ongoing task."""
-        pass
 
     async def _handle_request(
         self,
@@ -155,7 +155,8 @@ class BaseServerExecutor(AgentExecutor, abc.ABC):
             )
             if len(matching_tools) != 1:
                 raise ValueError(
-                    f'Expected 1 tool matching {tool_name}, got {len(matching_tools)}'
+                    f'Expected 1 tool matching {tool_name}, '
+                    f'got {len(matching_tools)}'
                 )
             callable_tool = matching_tools[0]
             await callable_tool(data_parts, updater, current_task)
@@ -168,7 +169,7 @@ class BaseServerExecutor(AgentExecutor, abc.ABC):
 
     def _parse_request(
         self, context: RequestContext
-    ) -> Tuple[list[str], list[dict[str, Any]]]:
+    ) -> tuple[list[str], list[dict[str, Any]]]:
         """Parses the request and returns the text and data parts.
 
         Args:
