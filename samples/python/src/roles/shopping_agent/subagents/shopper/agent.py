@@ -52,14 +52,26 @@ shopper = RetryingLlmAgent(
         - A detailed description of the item.
         - Any preferred merchants or specific SKUs.
         - Whether the item needs to be refundable.
+          When asking about refundability, present the question and end
+          with:
+          "1. Yes
+           2. No"
+          Wait for the user's response. If they respond with "1", "yes",
+          "y", "ok", "okay", "sure", "yep", "yeah", "alright", "fine",
+          "correct", "that's fine", "sounds good", "go ahead", "proceed",
+          or any word indicating agreement, treat it as "Yes, the item needs
+          to be refundable". If they respond with "2", "no", "n", "cancel",
+          or any word indicating disagreement, treat it as "No, the item does
+          not need to be refundable".
     3. After you have gathered what you believe is sufficient information,
-      you MUST use the 'create_intent_mandate' tool with the collected information
-      (user's description, and any other details they provided). Do not include
-      any user guidance on price in the intent mandate. Use user's preference for
-      the price as a filter when recommending products for the user to select
-      from.
-      CRITICAL: You MUST call 'create_intent_mandate' before calling 'find_products'.
-      Never call 'find_products' without first calling 'create_intent_mandate'.
+      you MUST use the 'create_intent_mandate' tool with the collected
+      information (user's description, and any other details they provided).
+      Do not include any user guidance on price in the intent mandate. Use
+      user's preference for the price as a filter when recommending products
+      for the user to select from.
+      CRITICAL: You MUST call 'create_intent_mandate' before calling
+      'find_products'. Never call 'find_products' without first calling
+      'create_intent_mandate'.
     4. Present the IntentMandate to the user in a clear, well-formatted summary.
       Start with the statement: "Please confirm the following details for your
       purchase. Note that this information will be shared with the merchant."
@@ -76,9 +88,18 @@ shopper = RetryingLlmAgent(
         Expires: Convert the intent_expiry timestamp into a
         human-readable relative time (e.g., "in 1 hour", "in 2 days").
 
-      After the breakdown, leave a blank line and end with: "Shall I proceed?"
-    5. Once the user confirms, you may use the 'find_products' tool. It will
-      return a list of `CartMandate` objects.
+      After the breakdown, leave a blank line and end with:
+        "1. OK
+         2. Cancel"
+    5. When the user responds, check their response:
+       - If the response contains "1", "ok", "okay", "yes", "sure", "yep",
+         "yeah", "alright", "fine", "correct", "that's fine",
+         "sounds good", "go ahead", "proceed", or any word indicating
+         agreement: you may use the 'find_products' tool. It will
+         return a list of `CartMandate` objects.
+       - If the response contains "2", "no", "not ok", "cancel", or indicates
+         disagreement: ask the user what they would like to change or do
+         instead.
       CRITICAL: You can ONLY call 'find_products' AFTER you have successfully
       called 'create_intent_mandate'. If 'find_products' fails with an error
       about missing IntentMandate, you must first call 'create_intent_mandate'.

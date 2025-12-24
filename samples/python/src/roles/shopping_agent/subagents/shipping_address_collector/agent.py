@@ -41,48 +41,106 @@ shipping_address_collector = RetryingLlmAgent(
     {DEBUG_MODE_INSTRUCTIONS}
 
         When asked to complete a task, follow these instructions:
-        1. Ask the user "Would you prefer to use a digital wallet (e.g., PayPal
-        or Stripe) to access your credentials for this purchase, or would you
-        like to enter your shipping address manually?"
-        2. Proceed depending on the following scenarios:
+        1. Ask the user with the following message:
+           "How would you like to provide your shipping address?
 
-        Scenario 1:
-        The user wants to use their digital wallet (e.g., PayPal or Stripe).
-        Do not add any additional digital wallet options to the list.
+           1. PayPal
+           2. Stripe
+           3. Manual"
+
+           You MUST wait for the user to respond before proceeding to step 2.
+           Do not proceed until you receive a response from the user.
+
+        2. When the user responds, check their response and proceed as follows:
+
+        Scenario 1: User chooses "1" or "PayPal"
         Instructions:
-        1. Collect the info about which digital wallet the user would like to
-           use for this transaction (e.g., PayPal or Stripe).
-        2. Send this message to the user:
-            "This is where you might have to go through a redirect to prove
-             your identity and allow your credentials provider to share
-             credentials with the AI Agent."
-        3. Send this message separately to the user:
-            "But this is a demo, so I will assume you have granted me access
-             to your account, with the login of bugsbunny@gmail.com.
+        1. Send this message to the user:
+           "This is where you might have to go through a redirect to prove
+            your identity and allow your credentials provider to share
+            credentials with the AI Agent."
+        2. Send this message separately to the user:
+           "But this is a demo, so I will assume you have granted me access
+            to your account, with the login of bugsbunny@gmail.com.
 
-             Is that ok?"
-        4. After sending the message in step 3, wait for the user's response.
+            1. OK
+            2. Cancel"
+        3. After sending the message in step 2, wait for the user's response.
+           You MUST wait for the user to respond before proceeding to step 4.
+           Do not proceed until you receive a response from the user.
 
-        5. When the user responds to "Is that ok?", check their response:
-           - If the response contains "yes", "ok", "okay", "sure", "yep",
+        4. When the user responds, check their response:
+           - If the response contains "1", "ok", "okay", "yes", "sure", "yep",
              "yeah", "alright", "fine", "correct", "that's fine",
              "sounds good", "go ahead", "proceed", or any word indicating
              agreement:
-             IMMEDIATELY call
-             get_shipping_address(user_email="bugsbunny@gmail.com")
+             Call get_shipping_address(user_email="bugsbunny@gmail.com")
              Do not say anything else. Just call the tool.
-           - If the response contains "no", "not ok", "cancel", or indicates
-             disagreement: Ask the user what they would like to do instead.
-        6. The `get_shipping_address` tool will return the user's shipping
+           - If the response contains "2", "no", "not ok", "cancel", or
+             indicates disagreement: Ask the user what they would like to do
+             instead.
+           - If the response is unclear or you cannot determine the user's
+             intent: Ask the user to clarify their response. You can say:
+             "I didn't understand your response. Please choose 1 for OK or
+             2 for Cancel."
+           - If you do not receive a response after waiting: Ask the user
+             again to respond. You can say: "Please respond with 1 for OK
+             or 2 for Cancel."
+        5. The `get_shipping_address` tool will return the user's shipping
            address. Once you receive the shipping address, transfer back to
            the root_agent with the shipping address.
 
-        Scenario 2:
-        Condition: The user wants to enter their shipping address manually.
+        Scenario 2: User chooses "2" or "Stripe"
+        Instructions:
+        1. Send this message to the user:
+           "This is where you might have to go through a redirect to prove
+            your identity and allow your credentials provider to share
+            credentials with the AI Agent."
+        2. Send this message separately to the user:
+           "But this is a demo, so I will assume you have granted me access
+            to your account, with the login of bugsbunny@gmail.com.
+
+            1. OK
+            2. Cancel"
+        3. After sending the message in step 2, wait for the user's response.
+           You MUST wait for the user to respond before proceeding to step 4.
+           Do not proceed until you receive a response from the user.
+
+        4. When the user responds, check their response:
+           - If the response contains "1", "ok", "okay", "yes", "sure", "yep",
+             "yeah", "alright", "fine", "correct", "that's fine",
+             "sounds good", "go ahead", "proceed", or any word indicating
+             agreement:
+             Call get_shipping_address(user_email="bugsbunny@gmail.com")
+             Do not say anything else. Just call the tool.
+           - If the response contains "2", "no", "not ok", "cancel", or
+             indicates disagreement: Ask the user what they would like to do
+             instead.
+           - If the response is unclear or you cannot determine the user's
+             intent: Ask the user to clarify their response. You can say:
+             "I didn't understand your response. Please choose 1 for OK or
+             2 for Cancel."
+           - If you do not receive a response after waiting: Ask the user
+             again to respond. You can say: "Please respond with 1 for OK
+             or 2 for Cancel."
+        5. The `get_shipping_address` tool will return the user's shipping
+           address. Once you receive the shipping address, transfer back to
+           the root_agent with the shipping address.
+
+        Scenario 3: User chooses "3" or "Manual"
         Instructions:
         1. Collect the user's shipping address. Ensure you have collected all
            of the necessary parts of a US address.
         2. Transfer back to the root_agent with the shipping address.
+
+        If the user's response is unclear or does not match any of the above
+        scenarios (1, 2, or 3), ask the user to clarify. You can say:
+        "I didn't understand your response. Please choose 1 for PayPal,
+        2 for Stripe, or 3 for Manual."
+
+        If you do not receive a response after waiting, ask the user again.
+        You can say: "Please respond with 1 for PayPal, 2 for Stripe, or
+        3 for Manual."
     """,
     tools=[
         tools.get_shipping_address,

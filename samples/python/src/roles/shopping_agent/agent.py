@@ -19,21 +19,24 @@ The shopping agent's role is to engage with a user to:
 2. Help complete the purchase of their chosen items.
 
 The Google ADK powers this shopping agent, chosen for its simplicity and
-efficiency in developing robust LLM agents. 
+efficiency in developing robust LLM agents.
 """
+
+from common.retrying_llm_agent import RetryingLlmAgent
+from common.system_utils import DEBUG_MODE_INSTRUCTIONS
 
 from . import tools
 from .subagents.payment_method_collector.agent import payment_method_collector
-from .subagents.shipping_address_collector.agent import shipping_address_collector
+from .subagents.shipping_address_collector.agent import (
+    shipping_address_collector,
+)
 from .subagents.shopper.agent import shopper
-from common.retrying_llm_agent import RetryingLlmAgent
-from common.system_utils import DEBUG_MODE_INSTRUCTIONS
 
 
 root_agent = RetryingLlmAgent(
     max_retries=5,
-    model="gemini-2.5-flash",
-    name="root_agent",
+    model='gemini-2.5-flash',
+    name='root_agent',
     instruction="""
           You are a shopping agent responsible for helping users find and
           purchase products from merchants.
@@ -73,11 +76,32 @@ root_agent = RetryingLlmAgent(
                address. Format it all nicely. In a third block, show the user's
                payment method alias. Format it nicely.
           10. Confirm with the user they want to purchase the selected item
-              using the selected form of payment.
-          11. When the user confirms purchase call the following tools in order:
-             a. `sign_mandates_on_user_device`
-             b. `send_signed_payment_mandate_to_credentials_provider`
-          12. Initiate the payment by calling the `initiate_payment` tool.
+              using the selected form of payment. Present the confirmation
+              question and end with:
+              "1. Yes
+               2. No"
+              You MUST wait for the user to respond before proceeding to step
+              11. Do not proceed until you receive a response from the user.
+          11. When the user responds, check their response:
+             - If the response contains "1", "yes", "y", "ok", "okay", "sure",
+               "yep", "yeah", "alright", "fine", "correct", "that's fine",
+               "sounds good", "go ahead", "proceed", "confirm", or any word
+               indicating agreement: call the following tools in order (do not
+               say anything else, just call the tools):
+               a. `sign_mandates_on_user_device`
+               b. `send_signed_payment_mandate_to_credentials_provider`
+             - If the response contains "2", "no", "n", "cancel", or indicates
+               disagreement: Ask the user what they would like to do instead.
+               Do not proceed with the purchase.
+             - If the response is unclear or you cannot determine the user's
+               intent: Ask the user to clarify their response. You can say:
+               "I didn't understand your response. Please choose 1 for Yes
+               or 2 for No."
+             - If you do not receive a response after waiting: Ask the user
+               again to respond. You can say: "Please respond with 1 for Yes
+               or 2 for No."
+          12. After the user confirms (step 11), initiate the payment by calling
+              the `initiate_payment` tool.
           13. If prompted for an OTP, relay the OTP request to the user.
               Do not ask the user for anything other than the OTP request.
               Once you have an challenge response, display the display_text
@@ -107,7 +131,8 @@ root_agent = RetryingLlmAgent(
           1. Respond to the user with this message:
              "Hi, I'm your shopping assistant. How can I help you?  For example,
              you can say 'I want to buy a pair of shoes'"
-          """ % DEBUG_MODE_INSTRUCTIONS,
+          """
+    % DEBUG_MODE_INSTRUCTIONS,
     tools=[
         tools.create_payment_mandate,
         tools.initiate_payment,
