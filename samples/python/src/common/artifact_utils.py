@@ -14,14 +14,11 @@
 
 """Helper functions for working with A2A Artifact objects."""
 
-from typing import Any, TypeVar
+from typing import Any
 
 from a2a.types import Artifact
 from a2a.utils.parts import get_data_parts
 from pydantic import BaseModel
-
-
-T = TypeVar('T')
 
 
 def find_canonical_objects(
@@ -69,7 +66,7 @@ def get_first_data_part(artifacts: list[Artifact]) -> dict[str, Any]:
     return {}
 
 
-def only(list_: list[T]) -> T:
+def only[T](list_: list[T]) -> T:
     """Returns the only element in a list.
 
     Args:
