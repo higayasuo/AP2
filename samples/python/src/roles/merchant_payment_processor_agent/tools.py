@@ -18,9 +18,10 @@ Each agent uses individual tools to handle distinct tasks throughout the
 shopping and purchasing process.
 """
 
-import logging  # noqa: I001
+import logging
 import os
 import uuid
+
 from datetime import UTC, datetime
 from typing import Any
 
