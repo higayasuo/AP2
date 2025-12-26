@@ -1,18 +1,21 @@
 {
+  "editor.formatOnSave": true,
+  "[python]": {
+    "editor.defaultFormatter": "charliermarsh.ruff",
     "editor.formatOnSave": true,
-    "[python]": {
-        "editor.defaultFormatter": "charliermarsh.ruff",
-        "editor.formatOnSave": true,
-        "editor.codeActionsOnSave": {
-            "source.organizeImports": "explicit"
-        }
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "explicit",
+      "source.fixAll.ruff": "explicit"
     },
-    "ruff.importStrategy": "fromEnvironment",
-    "markdownlint.configFile": ".github/linters/.markdownlint.json",
-    "[json]": {
-        "editor.defaultFormatter": "vscode.json-language-features",
-        "editor.formatOnSave": true
-    },
-    "files.trimTrailingWhitespace": true,
-    "files.insertFinalNewline": true
+    "ruff.lint.enable": true,
+    "ruff.format.enable": false
+  },
+  "ruff.importStrategy": "fromEnvironment",
+  "markdownlint.configFile": ".github/linters/.markdownlint.json",
+  "[json]": {
+    "editor.defaultFormatter": "vscode.json-language-features",
+    "editor.formatOnSave": true
+  },
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true
 }

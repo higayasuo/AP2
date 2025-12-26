@@ -25,6 +25,11 @@ from ap2.types.payment_request import PaymentCurrencyAmount
 PAYMENT_RECEIPT_DATA_KEY = 'ap2.PaymentReceipt'
 
 
+def _get_timestamp() -> str:
+    """Get current timestamp in ISO 8601 format."""
+    return datetime.now(UTC).isoformat()
+
+
 class Success(BaseModel):
     """Details about a successful payment."""
 
@@ -69,7 +74,7 @@ class PaymentReceipt(BaseModel):
     )
     timestamp: str = Field(
         description='Date and time payment receipt created in ISO 8601.',
-        default_factory=lambda: datetime.now(UTC).isoformat(),
+        default_factory=_get_timestamp,
     )
     payment_id: str = Field(
         ..., description='A unique identifier for the payment.'

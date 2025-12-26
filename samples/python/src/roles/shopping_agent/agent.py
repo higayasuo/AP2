@@ -48,10 +48,17 @@ root_agent = RetryingLlmAgent(
           Follow these instructions, depending upon the scenario:
 
           Scenario 1:
-          The user asks to buy or shop for something.
-          1. Delegate to the `shopper` agent to collect the products the user
-             is interested in purchasing. The `shopper` agent will return a
-             message indicating if the chosen cart mandate is ready or not.
+          The user asks to buy or shop for something (e.g., "I want to buy
+          red running shoes", "I'm looking for a laptop", "I need to purchase
+          a gift", etc.).
+          CRITICAL: When you receive a user message that indicates they want
+          to buy or shop for something, you MUST immediately delegate to the
+          `shopper` agent. Do not ask any questions first. Just delegate to
+          the shopper agent right away.
+          1. Immediately delegate to the `shopper` agent to collect the
+             products the user is interested in purchasing. The `shopper`
+             agent will return a message indicating if the chosen cart
+             mandate is ready or not.
           2. Once a success message is received, delegate to the
             `shipping_address_collector` agent to collect the user's shipping
             address.

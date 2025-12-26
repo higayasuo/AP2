@@ -257,12 +257,38 @@ the simplest and work your way up:
         - Handles OTP challenges
         - Returns payment receipts
 
+    **Reading order for this agent:**
+
+    1. [`agent.json`](samples/python/src/roles/merchant_payment_processor_agent/agent.json)
+        - Understand the agent's capabilities and supported extensions
+    2. [`agent_executor.py`](samples/python/src/roles/merchant_payment_processor_agent/agent_executor.py)
+        - See how the agent is structured and which tools it uses
+    3. [`tools.py`](samples/python/src/roles/merchant_payment_processor_agent/tools.py)
+        - Learn the core payment processing logic (`initiate_payment` function)
+    4. [`__main__.py`](samples/python/src/roles/merchant_payment_processor_agent/__main__.py)
+        - Understand how the agent server is started
+
 2. **Merchant Agent:**
 
     - [`samples/python/src/roles/merchant_agent/`](samples/python/src/roles/merchant_agent/)
         - Handles product queries
         - Manages shopping carts
         - Uses a sub-agent for catalog queries
+
+    **Reading order for this agent:**
+
+    1. [`agent.json`](samples/python/src/roles/merchant_agent/agent.json)
+        - Understand the agent's capabilities and supported extensions
+    2. [`agent_executor.py`](samples/python/src/roles/merchant_agent/agent_executor.py)
+        - See how the agent handles `PaymentMandate` and `IntentMandate`
+    3. [`tools.py`](samples/python/src/roles/merchant_agent/tools.py)
+        - Learn the core merchant logic (`initiate_payment`, `update_cart`)
+    4. [`sub_agents/catalog_agent.py`](samples/python/src/roles/merchant_agent/sub_agents/catalog_agent.py)
+        - Understand how product search works
+    5. [`storage.py`](samples/python/src/roles/merchant_agent/storage.py)
+        - See how cart data is stored
+    6. [`__main__.py`](samples/python/src/roles/merchant_agent/__main__.py)
+        - Understand how the agent server is started
 
 3. **Credentials Provider Agent:**
 
@@ -271,7 +297,21 @@ the simplest and work your way up:
         - Provides payment credentials
         - Handles payment authorization
 
+    **Reading order for this agent:**
+
+    1. [`agent.json`](samples/python/src/roles/credentials_provider_agent/agent.json)
+        - Understand the agent's capabilities and supported extensions
+    2. [`agent_executor.py`](samples/python/src/roles/credentials_provider_agent/agent_executor.py)
+        - See how the agent is structured and which tools it uses
+    3. [`account_manager.py`](samples/python/src/roles/credentials_provider_agent/account_manager.py)
+        - Learn how user accounts and payment methods are managed
+    4. [`tools.py`](samples/python/src/roles/credentials_provider_agent/tools.py)
+        - Learn the core credential provision logic
+    5. [`__main__.py`](samples/python/src/roles/credentials_provider_agent/__main__.py)
+        - Understand how the agent server is started
+
 4. **Shopping Agent** (most complex):
+
     - [`samples/python/src/roles/shopping_agent/`](samples/python/src/roles/shopping_agent/)
         - Main orchestrator for shopping flows
         - Uses ADK (Agent Development Kit) instead of base executor
@@ -279,6 +319,29 @@ the simplest and work your way up:
             - `shopper/`: Product search and cart creation
             - `shipping_address_collector/`: Collects shipping addresses
             - `payment_method_collector/`: Collects payment method selection
+
+    **Reading order for this agent:**
+
+    1. [`agent.py`](samples/python/src/roles/shopping_agent/agent.py)
+        - Understand the main agent's instructions and orchestration logic
+    2. [`tools.py`](samples/python/src/roles/shopping_agent/tools.py)
+        - Learn the main shopping agent tools (`update_cart`,
+          `create_payment_mandate`, etc.)
+    3. [`remote_agents.py`](samples/python/src/roles/shopping_agent/remote_agents.py)
+        - See how the agent communicates with other agents
+    4. **Sub-agents** (read in this order):
+        - [`subagents/shopper/agent.py`](samples/python/src/roles/shopping_agent/subagents/shopper/agent.py)
+          and
+          [`tools.py`](samples/python/src/roles/shopping_agent/subagents/shopper/tools.py)
+            - Product search and cart creation
+        - [`subagents/shipping_address_collector/agent.py`](samples/python/src/roles/shopping_agent/subagents/shipping_address_collector/agent.py)
+          and
+          [`tools.py`](samples/python/src/roles/shopping_agent/subagents/shipping_address_collector/tools.py)
+            - Shipping address collection
+        - [`subagents/payment_method_collector/agent.py`](samples/python/src/roles/shopping_agent/subagents/payment_method_collector/agent.py)
+          and
+          [`tools.py`](samples/python/src/roles/shopping_agent/subagents/payment_method_collector/tools.py)
+            - Payment method selection
 
 ### Step 5: Understand the Execution Flow
 

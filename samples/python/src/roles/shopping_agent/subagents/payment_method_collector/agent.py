@@ -64,9 +64,13 @@ payment_method_collector = RetryingLlmAgent(
     3. Call the `get_payment_methods` tool to get eligible
        payment_method_aliases with the method_data from the CartMandate's
        payment_request. Present the payment_method_aliases to the user in
-       a numbered list.
-    4. Ask the user to choose which of their forms of payment they would
-       like to use for the payment. Remember that payment_method_alias.
+       a numbered list (e.g., "1. American Express ending in 4444",
+       "2. American Express ending in 8888").
+    4. Ask the user to choose which payment method they would like to use
+       by responding with the number (e.g., "1" or "2"). Do not ask for
+       the full alias. When the user responds with a number, map it to the
+       corresponding payment_method_alias from the list and remember that
+       payment_method_alias.
     5. Call the `get_payment_credential_token` tool to get the payment
        credential token with the user_email and payment_method_alias.
     6. Transfer back to the root_agent with the payment_method_alias.
