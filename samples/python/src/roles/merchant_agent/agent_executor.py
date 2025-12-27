@@ -37,11 +37,10 @@ from a2a.types import Part, Task, TextPart
 from common import message_utils
 from common.base_server_executor import BaseServerExecutor
 from common.system_utils import DEBUG_MODE_INSTRUCTIONS
+from roles.merchant_agent import tools
+from roles.merchant_agent.sub_agents import catalog_agent
 
 from ap2.types.mandate import INTENT_MANDATE_DATA_KEY, PAYMENT_MANDATE_DATA_KEY
-
-from . import tools
-from .sub_agents import catalog_agent
 
 
 # A list of known Shopping Agent identifiers that this Merchant is willing to
@@ -54,17 +53,14 @@ _KNOWN_SHOPPING_AGENTS = [
 class MerchantAgentExecutor(BaseServerExecutor):
     """AgentExecutor for the merchant agent."""
 
-    _system_prompt = (
-        """
+    _system_prompt = f"""
     You are a merchant agent. Your role is to help users with their shopping
     requests.
 
     You can find items, update shopping carts, and initiate payments.
 
-    %s
+    {DEBUG_MODE_INSTRUCTIONS}
   """
-        % DEBUG_MODE_INSTRUCTIONS
-    )
 
     def __init__(self, supported_extensions: list[dict[str, Any]] = None):
         """Initializes the MerchantAgentExecutor.
@@ -88,14 +84,12 @@ class MerchantAgentExecutor(BaseServerExecutor):
         updater: TaskUpdater,
         current_task: Task | None,
     ) -> None:
-        """Overrides the base class method to validate the shopping agent first."""
+        """Overrides the base class method to validate shopping agent first."""
         if not await self._validate_shopping_agent(data_parts, updater):
             error_message = updater.new_agent_message(
                 parts=[
                     Part(
-                        root=TextPart(
-                            text=f'Failed to validate shopping agent.'
-                        )
+                        root=TextPart(text='Failed to validate shopping agent.')
                     )
                 ]
             )
@@ -134,11 +128,11 @@ class MerchantAgentExecutor(BaseServerExecutor):
 
         Args:
           data_parts: A list of data part contents from the request.
+          updater: The TaskUpdater for updating task status.
 
         Returns:
           True if the Shopping Agent is trusted, or False if not.
         """
-
         shopping_agent_id = message_utils.find_data_part(
             'shopping_agent_id', data_parts
         )

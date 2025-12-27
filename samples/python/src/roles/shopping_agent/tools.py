@@ -21,7 +21,7 @@ shopping and purchasing process, such as updating a cart or initiating payment.
 import os
 import uuid
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from a2a.types import Artifact
@@ -248,7 +248,7 @@ def create_payment_mandate(
     payment_mandate = PaymentMandate(
         payment_mandate_contents=PaymentMandateContents(
             payment_mandate_id=uuid.uuid4().hex,
-            timestamp=datetime.now(timezone.utc).isoformat(),
+            timestamp=datetime.now(UTC).isoformat(),
             payment_details_id=payment_request.details.id,
             payment_details_total=payment_request.details.total,
             payment_response=payment_response,
