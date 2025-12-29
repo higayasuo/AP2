@@ -54,68 +54,33 @@ shipping_address_collector = RetryingLlmAgent(
            make any tool calls or send any additional messages until the
            user responds.
 
-        2. When the user responds (you will see their response in the
-           conversation history), check their response and proceed as
-           follows:
-
-        Scenario 1: User chooses "1" or "Account address"
-        Instructions:
-        1. Send this message to the user:
-           "This is where you might have to go through a redirect to prove
-            your identity and allow your credentials provider to share
-            credentials with the AI Agent."
-        2. Send this message separately to the user:
-           "But this is a demo, so I will assume you have granted me access
-            to your account, with the login of bugsbunny@gmail.com.
-
-            1. OK
-            2. Cancel"
-
-           CRITICAL: After sending this message, you MUST stop and wait
-           for the user's response. Do NOT proceed until you have received
-           a user response in the conversation. If you have not yet
-           received a user response, you must wait. Do not make any tool
-           calls or send any additional messages until the user responds.
-
-        3. When the user responds, check their response:
-           - If the response contains "1":
+        2. When the user responds, check their response:
+           - If the response contains "1" or "Account address":
              IMMEDIATELY call get_shipping_address(
                  user_email="bugsbunny@gmail.com"
              )
-             Do not say anything else. Just call the tool.
-           - If the response contains "2", or indicates disagreement: Ask the
-             user to enter the shipping address manually.
+             Do not say anything else. Do not ask for confirmation. Just call
+             the tool right away. The `get_shipping_address` tool will return
+             the user's shipping address. Once you receive the shipping
+             address, immediately transfer back to the root_agent with the
+             shipping address. Do not display the address yourself - the
+             root_agent will display it to the user. Your task is then
+             complete.
+           - If the response contains "2" or "Manual entry":
+             Collect the user's shipping address. Ensure you have collected all
+             of the necessary parts of a US address (recipient name, street
+             address, city, state/region, postal code, country). Once you have
+             collected all the required address information, immediately
+             transfer back to the root_agent with the shipping address. Do not
+             display the address yourself - the root_agent will display it to
+             the user. Your task is then complete.
            - If the response is unclear or you cannot determine the user's
              intent: Ask the user to clarify their response. You can say:
-             "I didn't understand your response. Please choose 1 for OK or
-             2 for Cancel."
-           - If you do not receive a response after waiting: Ask the user
-             again to respond. You can say: "Please respond with 1 for OK
-             or 2 for Cancel."
-        4. The `get_shipping_address` tool will return the user's shipping
-           address. Once you receive the shipping address, immediately transfer
-           back to the root_agent with the shipping address. Do not display
-           the address yourself - the root_agent will display it to the user.
-           Your task is then complete.
-
-        Scenario 2: User chooses "2" or "Manual entry"
-        Instructions:
-        1. Collect the user's shipping address. Ensure you have collected all
-           of the necessary parts of a US address (recipient name, street
-           address, city, state/region, postal code, country).
-        2. Once you have collected all the required address information,
-           immediately transfer back to the root_agent with the shipping
-           address. Do not display the address yourself - the root_agent will
-           display it to the user. Your task is then complete.
-
-        If the user's response is unclear or does not match any of the above
-        scenarios (1 or 2), ask the user to clarify. You can say:
-        "I didn't understand your response. Please choose 1 for Account
-        address or 2 for Manual entry."
-
-        If you do not receive a response after waiting, ask the user again.
-        You can say: "Please respond with 1 for Account address or 2 for
-        Manual entry."
+             "I didn't understand your response. Please choose 1 for Account
+             address or 2 for Manual entry."
+           - If you do not receive a response after waiting: Ask the user again
+             to respond. You can say: "Please respond with 1 for Account
+             address or 2 for Manual entry."
     """,
     tools=[
         tools.get_shipping_address,

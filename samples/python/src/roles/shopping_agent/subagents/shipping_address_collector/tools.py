@@ -19,6 +19,7 @@ shopping and purchasing process.
 """
 
 import logging
+import traceback
 
 from a2a.types import Artifact
 from common import artifact_utils
@@ -123,8 +124,6 @@ async def get_shipping_address(
             type(e).__name__,
             e,
         )
-        import traceback
-
         _logger.error(
             'get_shipping_address: Traceback:\n%s', traceback.format_exc()
         )

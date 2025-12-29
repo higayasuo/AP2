@@ -14,4 +14,4 @@
 
 """Shipping Address Collector Agent."""
 
-from . import agent
+from roles.shopping_agent.subagents.shipping_address_collector import agent
