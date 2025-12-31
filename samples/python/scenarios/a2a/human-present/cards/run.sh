@@ -9,7 +9,7 @@ set -e
 
 
 # Default payment method
-PAYMENT_METHOD="CARD"
+PAYMENT_METHOD="x402"
 
 # Parse command-line arguments
 while [[ "$#" -gt 0 ]]; do

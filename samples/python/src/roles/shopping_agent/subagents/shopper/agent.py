@@ -26,18 +26,17 @@ This is just one of many possible approaches.
 
 from common.retrying_llm_agent import RetryingLlmAgent
 from common.system_utils import DEBUG_MODE_INSTRUCTIONS
-
-from . import tools
+from roles.shopping_agent.subagents.shopper import tools
 
 
 shopper = RetryingLlmAgent(
     model='gemini-2.5-flash',
     name='shopper',
     max_retries=5,
-    instruction="""
+    instruction=f"""
     You are an agent responsible for helping the user shop for products.
 
-    %s
+    {DEBUG_MODE_INSTRUCTIONS}
 
     When asked to complete a task, follow these instructions:
     1. Find out what the user is interested in purchasing.
@@ -125,8 +124,7 @@ shopper = RetryingLlmAgent(
     9. Monitor the tool's output. If the cart ID is not found, you must inform
       the user and prompt them to try again. If the selection is successful,
       signal a successful update and hand off the process to the root_agent.
-    """
-    % DEBUG_MODE_INSTRUCTIONS,
+    """,
     tools=[
         tools.create_intent_mandate,
         tools.find_products,

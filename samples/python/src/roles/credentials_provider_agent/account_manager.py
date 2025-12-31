@@ -80,9 +80,9 @@ _account_db = {
             'x402_wallet': {
                 'type': 'DIGITAL_WALLET',
                 'brand': 'x402',
-                'alias': "Bugs's x402 Base USDC Wallet",
+                'alias': "Bugs's x402 Polygon JPYC Wallet",
                 'wallet_address': '0xPayerWalletAddress',
-                'network': 'base',
+                'network': 'polygon',
                 'asset': '0x833589fCD6eDb6E08f4c7C32D4f71b54bda02913',
             },
         },

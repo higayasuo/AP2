@@ -14,4 +14,4 @@
 
 """Shopper Agent."""
 
-from . import agent
+from roles.shopping_agent.subagents.shopper import agent

@@ -28,15 +28,15 @@ from common.artifact_utils import find_canonical_objects
 from google.adk.tools.tool_context import ToolContext
 from roles.shopping_agent.remote_agents import merchant_agent_client
 
-
-_logger = logging.getLogger(__name__)
-
 from ap2.types.mandate import (
     CART_MANDATE_DATA_KEY,
     INTENT_MANDATE_DATA_KEY,
     CartMandate,
     IntentMandate,
 )
+
+
+_logger = logging.getLogger(__name__)
 
 
 def create_intent_mandate(
@@ -118,7 +118,7 @@ async def find_products(
         )
     # Convert dict back to IntentMandate object
     intent_mandate = (
-        IntentMandate(**intent_mandate_dict)
+        IntentMandate.model_validate(intent_mandate_dict)
         if isinstance(intent_mandate_dict, dict)
         else intent_mandate_dict
     )
