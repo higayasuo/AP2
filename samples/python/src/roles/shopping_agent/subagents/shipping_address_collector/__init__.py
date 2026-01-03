@@ -13,5 +13,3 @@
 # limitations under the License.
 
 """Shipping Address Collector Agent."""
-
-from roles.shopping_agent.subagents.shipping_address_collector import agent

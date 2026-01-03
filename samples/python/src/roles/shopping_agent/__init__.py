@@ -13,5 +13,3 @@
 # limitations under the License.
 
 """The shopping agent module."""
-
-from . import agent

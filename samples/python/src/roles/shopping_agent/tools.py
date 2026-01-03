@@ -28,6 +28,10 @@ from a2a.types import Artifact
 from common import artifact_utils
 from common.a2a_message_builder import A2aMessageBuilder
 from google.adk.tools.tool_context import ToolContext
+from roles.shopping_agent.remote_agents import (
+    credentials_provider_client,
+    merchant_agent_client,
+)
 
 from ap2.types.contact_picker import ContactAddress
 from ap2.types.mandate import (
@@ -39,8 +43,6 @@ from ap2.types.mandate import (
 )
 from ap2.types.payment_receipt import PAYMENT_RECEIPT_DATA_KEY, PaymentReceipt
 from ap2.types.payment_request import PaymentResponse
-
-from .remote_agents import credentials_provider_client, merchant_agent_client
 
 
 async def update_cart(
@@ -136,10 +138,10 @@ async def initiate_payment(tool_context: ToolContext, debug_mode: bool = False):
 async def initiate_payment_with_otp(
     challenge_response: str, tool_context: ToolContext, debug_mode: bool = False
 ):
-    """Initiates a payment using the payment mandate from state and a
+    """Initiates a payment using the payment mandate and challenge response.
 
-      challenge response. In our sample, the challenge response is a one-time
-      password (OTP) sent to the user.
+      In our sample, the challenge response is a one-time password (OTP) sent
+      to the user.
 
     Args:
       challenge_response: The challenge response.
@@ -274,8 +276,8 @@ def sign_mandates_on_user_device(tool_context: ToolContext) -> str:
     concatenating the mandate hashes.
 
     Args:
-        tool_context: The context object used for state management. It is expected
-          to contain the `payment_mandate` and `cart_mandate`.
+        tool_context: The context object used for state management. It is
+          expected to contain the `payment_mandate` and `cart_mandate`.
 
     Returns:
         A string representing the simulated user authorization signature (JWT).
@@ -298,7 +300,8 @@ def sign_mandates_on_user_device(tool_context: ToolContext) -> str:
     payment_mandate_hash = _generate_payment_mandate_hash(
         payment_mandate.payment_mandate_contents
     )
-    # A JWT containing the user's digital signature to authorize the transaction.
+    # A JWT containing the user's digital signature to authorize the
+    # transaction.
     # The payload uses hashes to bind the signature to the specific cart and
     # payment details, and includes a nonce to prevent replay attacks.
     payment_mandate.user_authorization = (

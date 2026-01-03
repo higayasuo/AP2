@@ -25,41 +25,71 @@ After selection, the agent gets a purchase token from the credentials
 provider, which is then sent to the merchant agent for payment.
 """
 
-from . import tools
 from common.retrying_llm_agent import RetryingLlmAgent
 from common.system_utils import DEBUG_MODE_INSTRUCTIONS
+from roles.shopping_agent.subagents.payment_method_collector import tools
 
 
 payment_method_collector = RetryingLlmAgent(
-    model="gemini-2.5-flash",
-    name="payment_method_collector",
+    model='gemini-2.5-flash',
+    name='payment_method_collector',
     max_retries=5,
-    instruction="""
+    instruction=f"""
     You are an agent responsible for obtaining the user's payment method for a
     purchase.
 
-    %s
+    {DEBUG_MODE_INSTRUCTIONS}
 
     When asked to complete a task, follow these instructions:
     1. Ensure a CartMandate object was provided to you.
     2. Present a clear and organized summary of the cart to the user. The
        summary should be divided into two main sections:
-       a. Order Summary:
-          Merchant: The name of the merchant.
-          Item: Display the item_name clearly.
+       a. Order Summary: Format EXACTLY as shown below, with each element on
+          its own line (you MUST add a line break after each element):
+
+          Merchant: [merchant name]
+
+          Item: [item_name]
+
           Price Breakdown:
-            Shipping: The shipping cost from the `shippingOptions`.
-            Tax: The tax amount, if available.
-            Total: The final total price from the `total` field in the
-              `payment_request`.
-            Format all amounts with commas and the currency symbol.
-          Expires: Convert the cart_expiry into a human-readable format
-            (e.g., "in 2 hours," "by tomorrow at 5 PM"). Convert the time to the
-            user's timezone.
-          Refund Period: Convert the refund_period into a human-readable format
-            (e.g., "30 days," "14 days").
+          Shipping: [shipping cost]
+          Tax: [tax amount]
+          Total: [total price]
+
+          Format all amounts with commas and the currency symbol.
+
+          Expires: [cart_expiry in human-readable format]
+
+          Refund Period: [refund_period in human-readable format]
+
+          CRITICAL: You MUST add a line break (newline) after EACH element in
+          the Order Summary. Never put multiple elements on the same line.
        b. Show the full shipping address collected earlier in a well-formatted
-          manner.
+          manner. Format it EXACTLY as shown below, with each element on its
+          own line (you MUST add a line break after each element):
+
+          Recipient: [recipient name]
+
+          Organization: [organization] (only if present, on its own line)
+
+          Address: [address_line[0]]
+
+          [address_line[1]] (if present, on its own line)
+
+          City: [city]
+
+          State: [region]
+
+          Postal Code: [postal_code]
+
+          Country: [country]
+
+          Phone: [phone_number] (only if present, on its own line)
+
+          CRITICAL: You MUST add a line break (newline) after EACH element.
+          Never put multiple elements on the same line. Never display raw JSON.
+          Each element must be separated by a blank line or at least be on
+          separate lines.
        Ensure the entire presentation is well-formatted and easy to read.
     3. Call the `get_payment_methods` tool to get eligible
        payment_method_aliases with the method_data from the CartMandate's
@@ -74,7 +104,7 @@ payment_method_collector = RetryingLlmAgent(
     5. Call the `get_payment_credential_token` tool to get the payment
        credential token with the user_email and payment_method_alias.
     6. Transfer back to the root_agent with the payment_method_alias.
-    """ % DEBUG_MODE_INSTRUCTIONS,
+    """,
     tools=[
         tools.get_payment_methods,
         tools.get_payment_credential_token,

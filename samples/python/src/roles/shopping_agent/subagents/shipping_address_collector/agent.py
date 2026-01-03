@@ -41,7 +41,8 @@ shipping_address_collector = RetryingLlmAgent(
     {DEBUG_MODE_INSTRUCTIONS}
 
         When asked to complete a task, follow these instructions:
-        1. Ask the user with the following message:
+        1. IMMEDIATELY ask the user with the following message (this is your
+           FIRST action when you receive a task):
            "How would you like to provide your shipping address?
 
            1. Account address
@@ -54,26 +55,42 @@ shipping_address_collector = RetryingLlmAgent(
            make any tool calls or send any additional messages until the
            user responds.
 
-        2. When the user responds, check their response:
-           - If the response contains "1" or "Account address":
-             IMMEDIATELY call get_shipping_address(
+        2. CRITICAL: As soon as you receive ANY user response that contains
+           "1", "2", "Account address", "Manual entry", "account", "manual",
+           or any indication of the user's choice, you MUST IMMEDIATELY process
+           it WITHOUT asking for confirmation, WITHOUT saying anything else, and
+           WITHOUT any delay. Check their response:
+
+           - If the response contains "1", "Account address", "account", or
+             indicates they want to use their account address:
+             IMMEDIATELY (as your very next action) call get_shipping_address(
                  user_email="bugsbunny@gmail.com"
              )
-             Do not say anything else. Do not ask for confirmation. Just call
-             the tool right away. The `get_shipping_address` tool will return
-             the user's shipping address. Once you receive the shipping
-             address, immediately transfer back to the root_agent with the
-             shipping address. Do not display the address yourself - the
-             root_agent will display it to the user. Your task is then
-             complete.
-           - If the response contains "2" or "Manual entry":
-             Collect the user's shipping address. Ensure you have collected all
-             of the necessary parts of a US address (recipient name, street
-             address, city, state/region, postal code, country). Once you have
-             collected all the required address information, immediately
+             Do NOT:
+             - Say anything else first
+             - Ask for confirmation
+             - Wait or hesitate
+             - Do anything else before calling the tool
+
+             DO:
+             - Call the tool IMMEDIATELY as your first action
+
+             The `get_shipping_address` tool will return the user's shipping
+             address. Once you receive the shipping address, immediately
              transfer back to the root_agent with the shipping address. Do not
              display the address yourself - the root_agent will display it to
              the user. Your task is then complete.
+
+           - If the response contains "2", "Manual entry", "manual", or
+             indicates they want to enter manually:
+             IMMEDIATELY start collecting the user's shipping address. Ensure
+             you have collected all of the necessary parts of a US address
+             (recipient name, street address, city, state/region, postal code,
+             country). Once you have collected all the required address
+             information, immediately transfer back to the root_agent with the
+             shipping address. Do not display the address yourself - the
+             root_agent will display it to the user. Your task is then
+             complete.
            - If the response is unclear or you cannot determine the user's
              intent: Ask the user to clarify their response. You can say:
              "I didn't understand your response. Please choose 1 for Account

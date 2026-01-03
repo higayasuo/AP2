@@ -332,15 +332,15 @@ the simplest and work your way up:
     4. **Sub-agents** (read in this order):
         - [`subagents/shopper/agent.py`](samples/python/src/roles/shopping_agent/subagents/shopper/agent.py)
           and
-          [`tools.py`](samples/python/src/roles/shopping_agent/subagents/shopper/tools.py)
+          [`subagents/shopper/tools.py`](samples/python/src/roles/shopping_agent/subagents/shopper/tools.py)
             - Product search and cart creation
         - [`subagents/shipping_address_collector/agent.py`](samples/python/src/roles/shopping_agent/subagents/shipping_address_collector/agent.py)
           and
-          [`tools.py`](samples/python/src/roles/shopping_agent/subagents/shipping_address_collector/tools.py)
+          [`subagents/shipping_address_collector/tools.py`](samples/python/src/roles/shopping_agent/subagents/shipping_address_collector/tools.py)
             - Shipping address collection
         - [`subagents/payment_method_collector/agent.py`](samples/python/src/roles/shopping_agent/subagents/payment_method_collector/agent.py)
           and
-          [`tools.py`](samples/python/src/roles/shopping_agent/subagents/payment_method_collector/tools.py)
+          [`subagents/payment_method_collector/tools.py`](samples/python/src/roles/shopping_agent/subagents/payment_method_collector/tools.py)
             - Payment method selection
 
 ### Step 5: Understand the Execution Flow

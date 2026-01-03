@@ -13,5 +13,3 @@
 # limitations under the License.
 
 """Payment Method Collector Agent."""
-
-from . import agent
