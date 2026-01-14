@@ -129,7 +129,7 @@ generally follow this pattern:
 1. Run the run script to install dependencies & start the agents.
 
     ```sh
-    bash samples/python/scenarios/your-scenario-name/run.sh
+    bash samples/python/scenarios/a2a/human-present/cards/run.sh
     ```
 
 1. Navigate to the Shopping Agent URL and begin engaging.
