@@ -185,6 +185,9 @@ Thumbs.db
 
 .logs/
 
+# ADK session databases and artifacts
+**/.adk/
+
 ### Gradle ###
 .gradle
 **/build/
